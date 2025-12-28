@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>♬報酬額表電卓 V22-Final-Fixed</title>
+<title>積算電卓 V22-Final-Fixed</title>
 <style>
 :root{--bg:#0b0b0c;--card:#14171a;--muted:#9aa4ad;--accent-1:#1e90ff;--orange:#ff9500;--dark-btn:#0b0b0c;font-family: sans-serif;}
 *{box-sizing:border-box}
@@ -45,6 +45,8 @@ html,body{height:100%;margin:0;background:var(--bg);color:#fff;-webkit-font-smoo
 .btn-const{ color:var(--dark-btn); }
 .btn-const.dark{ background:linear-gradient(180deg, #ff7f50, #ff6347); color:#fff; }
 .btn-const.ac-dark{ background:linear-gradient(180deg, #ff4500, #cc3700); color:#fff; }
+/* 追加：青いボタン用スタイル */
+.btn-blue{ background:linear-gradient(180deg, #1e90ff, #007bff); color:#fff; }
 .btn-travel{ background:linear-gradient(180deg, #90ee90, #4ecb71) !important; color:#004d40 !important; }
 .btn-free{ background:#ffffff; color:#000; border:1px solid #999; }
 .btn-placeholder{background:transparent; min-height:64px; border:none;}
@@ -84,6 +86,7 @@ html,body{height:100%;margin:0;background:var(--bg);color:#fff;-webkit-font-smoo
 
     <div id="mainButtons" class="grid-wrap"><div class="buttons" id="buttonsArea"></div></div>
     <div class="grid-wrap"><div class="buttons" id="controlBtnsArea"></div></div>
+    
     <div class="free-group">
         <label class="free-label">自由入力（金額を入れて下のボタンを押す）</label>
         <input id="freeValue" class="free-input" type="number" placeholder="0" inputmode="numeric">
@@ -131,7 +134,7 @@ let cfg = JSON.parse(localStorage.getItem(CFG_KEY)) || {
         {name:"クレーム(%)", coeff:0.6873, roundMethod:"ceil"},
         {name:"部品代", coeff:1.0, roundMethod:"ceil"},
         {name:"立会い", coeff:0.864, roundMethod:"ceil"},
-        {name:"コンサート(%)", isRanked:false, coeff:0.7658, roundMethod:"ceil100"}, // 固定に変更
+        {name:"コンサート(%)", isRanked:false, coeff:0.7658, roundMethod:"ceil100"},
         {name:"割増・調整", isRanked:false, coeff:0.8836, roundMethod:"ceil"},
         {name:"予備7", coeff:1.0, roundMethod:"ceil"},
         {name:"予備8", coeff:1.0, roundMethod:"ceil"}
@@ -177,12 +180,32 @@ function renderFreeButtons(){
     });
 }
 
+// 修正：コントロールボタン描画関数
 function renderControlButtons(){
     const area = document.getElementById("controlBtnsArea"); area.innerHTML = "";
-    [0,1].forEach(()=>area.appendChild(Object.assign(document.createElement("div"), {className:"btn-placeholder"})));
-    const c = document.createElement("button"); c.className = "btn-base btn-const dark"; c.innerHTML = "C"; c.onclick = () => { entries.pop(); updateUI(); scrollToTop(); };
-    const ac = document.createElement("button"); ac.className = "btn-base btn-const ac-dark"; ac.innerHTML = "AC"; ac.onclick = () => { entries = []; updateUI(); scrollToTop(); };
-    area.append(c, ac);
+    
+    // 1列目：汎用早見表
+    const blue = document.createElement("button");
+    blue.className = "btn-base btn-blue";
+    blue.innerHTML = "汎用<br>早見表";
+    blue.onclick = () => window.open('https://betsunoid.github.io/hayamihyo/', '_blank');
+    
+    // 2列目：空白
+    const empty = Object.assign(document.createElement("div"), {className:"btn-placeholder"});
+    
+    // 3列目：Cボタン
+    const c = document.createElement("button"); 
+    c.className = "btn-base btn-const dark"; 
+    c.innerHTML = "C"; 
+    c.onclick = () => { entries.pop(); updateUI(); scrollToTop(); };
+    
+    // 4列目：ACボタン
+    const ac = document.createElement("button"); 
+    ac.className = "btn-base btn-const ac-dark"; 
+    ac.innerHTML = "AC"; 
+    ac.onclick = () => { if(confirm("消去しますか？")) { entries = []; updateUI(); scrollToTop(); } };
+    
+    area.append(blue, empty, c, ac);
 }
 
 function updateUI(){
@@ -271,5 +294,6 @@ window.onload = () => {
 </script>
 </body>
 </html>
+
 
 
